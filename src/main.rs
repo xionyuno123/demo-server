@@ -42,8 +42,7 @@ struct Response {
 }
 
 async fn read_from_db() -> Result<NetStat, Box<dyn StdError>> {
-    let mut client_options = ClientOptions::parse("mongodb://localhost:27017").await?;
-    client_options.app_name = Some("demo-server".to_string());
+    let client_options = ClientOptions::parse("mongodb://localhost:27017").await?;
     let client = Client::with_options(client_options)?;
     let db = client.database("netstats-db");
     let collection = db.collection::<NetStat>("netstats");
@@ -126,7 +125,7 @@ async fn warp_handle(
 #[tokio::main]
 pub async fn main() -> Result<(), Box<dyn StdError>> {
     let stat = read_from_db().await?;
-    println!("MongoDB is correctly initialized");
+    println!("MongoDB is correctly initialized with initial state: {:?}", &stat);
 
     let warp_socket_addr = SERVER_ADDR
         .parse::<std::net::SocketAddr>()
