@@ -28,7 +28,7 @@ class ThreadWorker(threading.Thread):
             return
 
         while True:
-            time.sleep(1)
+            time.sleep(0.05)
             info = {
                 "id": "shared",
                 "bits_received": bits,
@@ -37,8 +37,6 @@ class ThreadWorker(threading.Thread):
             }
             update_condition = {'id' : 'shared'}
             mongo_collection.update_many(update_condition, {'$set' : info}, upsert= True)
-            print("finish updating")
-
 
 
 thread1 = ThreadWorker()
