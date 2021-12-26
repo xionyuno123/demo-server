@@ -8,7 +8,7 @@ use mongodb::{options::ClientOptions, Client};
 use serde::{Deserialize, Serialize};
 use warp::Filter;
 
-const SERVER_ADDR: &str = "127.0.0.1: 1024";
+const SERVER_ADDR: &str = "172.25.45.190:1024";
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct NetStat {
@@ -89,11 +89,12 @@ async fn warp_handle(
     let bits_speed = ((curr_stat.bits_received - guard.bits_received) as f64)
         / (interval.as_millis() as f64)
         * 1000.0;
-    let pkts_speed = ((curr_stat.pkts_received - guard.pkts_received) as f64)
-        / (interval.as_millis() as f64)
-        * 1000.0;
-    let drop_rate = ((curr_stat.pkts_missed - guard.pkts_missed) as f64)
-        / ((curr_stat.pkts_received - guard.pkts_received) as f64);
+    let drop_rate = if curr_stat.pkts_received - guard.pkts_received > 0 {
+        ((curr_stat.pkts_missed - guard.pkts_missed) as f64)
+            / ((curr_stat.pkts_received - guard.pkts_received) as f64)
+    } else {
+        0.0
+    };
 
     // build up the response
     let edge = Edge {
@@ -107,8 +108,8 @@ async fn warp_handle(
         port: [1, -1, -1, -1],
         rt_bps: [bits_speed as u64, 0, 0, 0],
         rt_miss: [drop_rate, 0.0, 0.0, 0.0],
-        rt_miss_pkt: [0, 0, 0, 0],
-        rt_total_pkt: [pkts_speed as u64, 0, 0, 0],
+        rt_miss_pkt: [curr_stat.pkts_received - guard.pkts_received, 0, 0, 0],
+        rt_total_pkt: [curr_stat.pkts_received - guard.pkts_received, 0, 0, 0],
     };
     let response = Response { edges: vec![edge] };
 
