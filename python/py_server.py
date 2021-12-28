@@ -28,7 +28,7 @@ class ThreadWorker(threading.Thread):
             return
 
         while True:
-            time.sleep(0.05)
+            time.sleep(0.01)
             info = {
                 "id": "shared",
                 "bits_received": bits,
