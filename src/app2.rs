@@ -6,12 +6,12 @@ use tokio::fs::read_to_string;
 use tokio::time::Duration;
 use warp::Filter;
 
-const LINK1_LOG: &str = "/home/djp/Rust/demo-server/python/fuck";
-const LINK2_LOG: &str = "/home/djp/demo-server/python/fuck";
-const LINK3_LOG: &str = "/home/djp/demo-server/python/fuck";
-const LINK4_LOG: &str = "/home/djp/demo-server/python/fuck";
+const LINK1_LOG: &str = "/home/djp01/iperf-script/link1.log";
+const LINK2_LOG: &str = "/home/djp01/iperf-script/link2.log";
+const LINK3_LOG: &str = "/home/djp01/iperf-script/link3.log";
+const LINK4_LOG: &str = "/home/djp01/iperf-script/link4.log";
 
-const SERVER_ADDR: &str = "172.25.45.190:1025";
+const SERVER_ADDR: &str = "192.168.50.106:566";
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct NetStat {
@@ -100,7 +100,8 @@ impl IperfStat {
     }
 }
 
-pub fn read_stats(file_string: &str, mut last_line_idx: usize) -> Option<(IperfStat, usize)> {
+pub fn read_stats(file_string: &str, last_line_idx: usize, prev_stat: IperfStat) -> Option<(IperfStat, usize)> {
+    let mut idx_mut = last_line_idx;
     let mut new_stat = IperfStat {
         bits_per_second: 0.0,
         pkts_received: 0,
@@ -109,29 +110,35 @@ pub fn read_stats(file_string: &str, mut last_line_idx: usize) -> Option<(IperfS
     };
 
     for (line_idx, line) in file_string[..].trim().split("\n").enumerate() {
-        if line_idx > last_line_idx {
+        if line_idx > idx_mut {
             let res = IperfStat::from_str(line);
             match res {
                 Some(stat) => {
                     new_stat = stat;
-                    last_line_idx = line_idx;
+                    idx_mut = line_idx;
                 }
                 None => {}
             }
         }
     }
 
-    Some((new_stat, last_line_idx))
+    if last_line_idx == idx_mut {
+        Some((prev_stat, last_line_idx))
+    }
+    else {
+        Some((new_stat, last_line_idx))
+    }
+    
 }
 
 async fn keep_reading(shared_stat: Arc<Mutex<IperfStat>>, log_file_name: &str) {
     let mut last_line_idx = 0;
     loop {
-        tokio::time::sleep(Duration::from_secs(5)).await;
+        tokio::time::sleep(Duration::from_secs(4)).await;
         let file_string = read_to_string(log_file_name)
             .await
             .expect(&format!("log file {} is not available", log_file_name)[..]);
-        let res = read_stats(&file_string[..], last_line_idx);
+        let res = read_stats(&file_string[..], last_line_idx, shared_stat.lock().unwrap().clone());
         match res {
             Some((stat, new_idx)) => {
                 last_line_idx = new_idx;
@@ -206,9 +213,9 @@ pub async fn run() -> Result<(), Box<dyn StdError>> {
     let link4_stat = Arc::new(Mutex::new(default_stat));
 
     let _ = tokio::spawn(keep_reading(link1_stat.clone(), LINK1_LOG));
-    let _ = tokio::spawn(keep_reading(link2_stat.clone(), LINK1_LOG));
-    let _ = tokio::spawn(keep_reading(link3_stat.clone(), LINK1_LOG));
-    let _ = tokio::spawn(keep_reading(link4_stat.clone(), LINK1_LOG));
+    let _ = tokio::spawn(keep_reading(link2_stat.clone(), LINK2_LOG));
+    let _ = tokio::spawn(keep_reading(link3_stat.clone(), LINK3_LOG));
+    let _ = tokio::spawn(keep_reading(link4_stat.clone(), LINK4_LOG));
 
     let warp_socket_addr = SERVER_ADDR
         .parse::<std::net::SocketAddr>()
@@ -229,6 +236,7 @@ pub async fn run() -> Result<(), Box<dyn StdError>> {
         .and_then(warp_handle);
 
     warp::serve(route).run(warp_socket_addr).await;
+    loop{}
 
     Ok(())
 }
