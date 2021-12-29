@@ -88,12 +88,12 @@ async fn warp_handle(
     let mut guard = prev_val.lock().unwrap();
 
     let now = Instant::now();
-    let interval = now - guard.instant;
+    let interval = now.duration_since(guard.instant);
+    println!("{:?}", interval.as_millis());
 
     // throughput and drop rate calculation
     let bits_speed = ((curr_stat.bits_received - guard.bits_received) as f64)
-        / (interval.as_millis() as f64)
-        * 1000.0;
+        / (interval.as_millis() as f64 / 1000.0);
     let drop_rate = if curr_stat.pkts_received - guard.pkts_received > 0 {
         ((curr_stat.pkts_missed - guard.pkts_missed) as f64)
             / ((curr_stat.pkts_received - guard.pkts_received) as f64)
@@ -113,7 +113,7 @@ async fn warp_handle(
         port: [1, -1, -1, -1],
         rt_bps: [bits_speed as u64, 0, 0, 0],
         rt_miss: [drop_rate, 0.0, 0.0, 0.0],
-        rt_miss_pkt: [curr_stat.pkts_received - guard.pkts_received, 0, 0, 0],
+        rt_miss_pkt: [curr_stat.pkts_missed - guard.pkts_missed, 0, 0, 0],
         rt_total_pkt: [curr_stat.pkts_received - guard.pkts_received, 0, 0, 0],
     };
     let response = Response { edges: vec![edge] };
