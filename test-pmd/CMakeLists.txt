@@ -1,11 +1,15 @@
 cmake_minimum_required(VERSION 3.2)
 
-set(CMAKE_PREFIX_PATH "/home/djp/tmp/dpdk-lib/lib/x86_64-linux-gnu/pkgconfig;/usr/bin/pkg-config")
-# set(PKG_CONFIG_EXECUTABLE "/usr/bin/pkg-config")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/usr/share/cmake-3.16/Modules")
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "/home/djp/tmp/dpdk-lib/lib/x86_64-linux-gnu/pkgconfig")
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "/usr/share/cmake-3.16/Modules")
+
+message(STATUS "${CMAKE_MODULE_PATH}")
+message(STATUS "${CMAKE_PREFIX_PATH}")
 
 project(test-pmd-cpp)
 
-include(FindPkgConfig, REQUIRED)
+find_package(FindPkgConfig)
 pkg_check_module(DPDK REQUIRED dpdk libdpdk)
 message(STATUS "dpdk include dir: ${DPDK_INCLUDE_DIRS}")
 message(STATUS "dpdk libs: ${DPDK_LIBRARIES}")
