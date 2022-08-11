@@ -30,6 +30,8 @@
 #include <cstdint>
 #include <set>
 
+// #include "testpmd.h"
+
 #define NB_MBUF   8192
 #define MEMPOOL_CACHE_SIZE 256
 #define RTE_TEST_RX_DESC_DEFAULT 128
