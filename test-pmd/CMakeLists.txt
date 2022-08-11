@@ -39,41 +39,55 @@ list(APPEND check_LIBRARIES "${JSON}")
 # By marking the two variables as advanced, they will not appear in cmake output logs.
 mark_as_advanced(DPDK_INCLUDE_DIR ${check_LIBRARIES})
 
+include_directories(${PROJECT_SOURCE_DIR}/include)
+
 set(DPDK_LIBRARIES
     -Wl,--whole-archive ${check_LIBRARIES} -lpthread -lnuma -ldl -lm -Wl,--no-whole-archive)
 
+# The cpp library
+add_library(cpp_lib
+  STATIC
+  cppsrc/fill_buf.cc
+)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -O3 -march=native")
+set_target_properties (cpp_lib PROPERTIES COMPILE_FLAGS ${CMAKE_CXX_FLAGS})
+target_link_libraries (cpp_lib ${DPDK_LIBRARIES})
+target_include_directories(cpp_lib PUBLIC ${DPDK_INCLUDE_DIR})
+
+
 # The C executable
 add_executable(${PROJECT_NAME} 
-  src/5tswap.c
-  src/cmdline.c
-  src/cmdline_flow.c
-  src/cmdline_mtr.c
-  src/cmdline_tm.c
-  src/bpf_cmd.c
-  src/config.c
-  src/csumonly.c
-  src/flowgen.c
-  src/icmpecho.c
-  src/ieee1588fwd.c
-  src/iofwd.c
-  src/macfwd.c
-  src/macswap.c
-  src/noisy_vnf.c
-  src/parameters.c
-  src/rxonly.c
-  src/testpmd.c
-  src/txonly.c
-  src/shunt.c
-  src/aggre.c
-  src/httpserver.c
-  src/util.c
+  csrc/5tswap.c
+  csrc/cmdline.c
+  csrc/cmdline_flow.c
+  csrc/cmdline_mtr.c
+  csrc/cmdline_tm.c
+  csrc/bpf_cmd.c
+  csrc/config.c
+  csrc/csumonly.c
+  csrc/flowgen.c
+  csrc/icmpecho.c
+  csrc/ieee1588fwd.c
+  csrc/iofwd.c
+  csrc/macfwd.c
+  csrc/macswap.c
+  csrc/noisy_vnf.c
+  csrc/parameters.c
+  csrc/rxonly.c
+  csrc/testpmd.c
+  csrc/txonly.c
+  csrc/shunt.c
+  csrc/aggre.c
+  csrc/httpserver.c
+  csrc/util.c
 )
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -march=native")
 set_target_properties (${PROJECT_NAME} PROPERTIES COMPILE_FLAGS ${CMAKE_C_FLAGS})
-target_link_libraries (${PROJECT_NAME} ${DPDK_LIBRARIES})
-target_include_directories(${PROJECT_NAME} PUBLIC ${DPDK_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/src)
-
-
-#set(CMAKE_CXX_STANDARD 14)
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -O3 -march=native")
-#set_target_properties (${PROJECT_NAME} PROPERTIES COMPILE_FLAGS ${CMAKE_CXX_FLAGS})
+target_link_libraries (${PROJECT_NAME} ${DPDK_LIBRARIES} cpp_lib)
+target_include_directories(
+  ${PROJECT_NAME} 
+  PUBLIC 
+  ${DPDK_INCLUDE_DIR} 
+  ${PROJECT_SOURCE_DIR}/csrc 
+)
