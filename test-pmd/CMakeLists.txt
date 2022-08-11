@@ -71,7 +71,7 @@ add_executable(${PROJECT_NAME}
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -march=native")
 set_target_properties (${PROJECT_NAME} PROPERTIES COMPILE_FLAGS ${CMAKE_C_FLAGS})
 target_link_libraries (${PROJECT_NAME} ${DPDK_LIBRARIES})
-target_include_directories(${PROJECT_NAME} PUBLIC ${DPDK_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${DPDK_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/src)
 
 
 #set(CMAKE_CXX_STANDARD 14)
