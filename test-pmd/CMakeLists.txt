@@ -8,7 +8,7 @@ project(test-pmd)
 
 # Please specify the correct dpdk installation directory.
 # The dpdk version must be 20.11.4
-set(DPDK_INSTALL_PATH "/home/djp/test/dpdk-install")
+set(DPDK_INSTALL_PATH ${PROJECT_SOURCE_DIR}/deps/dpdk-install)
 
 find_path(DPDK_INCLUDE_DIR rte_config.h
   HINTS ${DPDK_INSTALL_PATH}/include
@@ -26,6 +26,7 @@ foreach(c ${components})
     NO_DEFAULT_PATH)
 endforeach()
 
+# /usr/local/lib
 find_library(HTTPD microhttpd REQUIRED)
 find_library(JSON jansson REQUIRED)
 

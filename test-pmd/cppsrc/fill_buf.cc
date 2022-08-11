@@ -10,3 +10,7 @@ void fill_buf(char* buf, int buf_len) {
         std::memcpy(buf, content.c_str(), content.size()+1);
     }
 }
+
+inline void construct_pkt(struct rte_mbuf** mbuf) {
+
+}
