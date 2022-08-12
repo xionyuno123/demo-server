@@ -30,11 +30,6 @@ foreach(entry ${DPDK_INCLUDE_DIRS})
   target_include_directories(cpp_lib PUBLIC ${entry})
 endforeach()
 
-# foreach(entry ${DPDK_STATIC_LDFLAGS})
-#   target_link_libraries(cpp_lib ${entry})
-# endforeach()
-
-
 # The C executable
 add_executable(${PROJECT_NAME} 
   csrc/5tswap.c
@@ -62,7 +57,7 @@ add_executable(${PROJECT_NAME}
   csrc/util.c
 )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -w")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
 foreach(entry ${DPDK_CFLAGS_OTHER})
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${entry}")
 endforeach()

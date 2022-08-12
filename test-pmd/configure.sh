@@ -35,9 +35,8 @@ fi
 
 if [ ! -d "$ROOT_DIR/build" ]; then
     mkdir $ROOT_DIR/build
-    cmake . -B $ROOT_DIR/build
+    cd $ROOT_DIR/build
+    PKG_CONFIG_PATH=$ROOT_DIR/deps/dpdk-install/lib/x86_64-linux-gnu/pkgconfig cmake ..
 fi
 
-echo "Building test-pmd"
-cd $ROOT_DIR/build
-make -j
+echo "Build configuration completes. Please switch to build directory to build the test-pmd program."
