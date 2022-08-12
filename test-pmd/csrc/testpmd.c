@@ -62,7 +62,7 @@
 #endif
 
 #include "testpmd.h"
-#include "fill_buf.h"
+// #include "fill_buf.h"
 
 #ifndef MAP_HUGETLB
 /* FreeBSD may not have MAP_HUGETLB (in fact, it probably doesn't) */
@@ -3836,8 +3836,8 @@ signal_handler(int signum)
 int
 main(int argc, char** argv)
 {	
-	char buf[10];
-	fill_buf(buf, 10);
+	// char buf[10];
+	// fill_buf(buf, 10);
 	int diag;
 	portid_t port_id;
 	uint16_t count;
