@@ -2,6 +2,7 @@
 #include <rte_mbuf.h>
 #include <string>
 #include <cstring>
+#include <iostream>
 
 void fill_buf(char* buf, int buf_len) {
     std::string content = "wtf?";
@@ -11,6 +12,11 @@ void fill_buf(char* buf, int buf_len) {
     }
 }
 
-inline void construct_pkt(struct rte_mbuf** mbuf) {
-
+void construct_pkt(struct rte_mbuf* mbuf) {
+    if(mbuf != NULL) {
+        rte_mbuf_sanity_check(mbuf, 1);
+    }
+    else {
+        std::cout<<"input packet is a nullptr"<<std::endl;
+    }
 }

@@ -3839,6 +3839,7 @@ main(int argc, char** argv)
 	char buf[10];
 	fill_buf(buf, 10);
 	printf("%s\n", buf);
+	construct_pkt(NULL);
 
 	int diag;
 	portid_t port_id;
